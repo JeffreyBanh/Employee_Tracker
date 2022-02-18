@@ -28,7 +28,7 @@ async function applicationPrompt(){
                 con.query(query, function (err, res){
                     if (err) throw err;
                     console.table(res);
-                    console.log("viewing all departments");
+                    console.log("viewing all departments\n");
                     applicationPrompt()
                 })
             }
@@ -40,7 +40,8 @@ async function applicationPrompt(){
                 con.query(query, function (err, res){
                     if (err) throw err;
                     console.table(res);
-                    
+                    console.log("viewing all roles\n")
+                    applicationPrompt()
                 })
             }
             else if (applicationData.applicationChoices == "view all employees"){
@@ -48,13 +49,15 @@ async function applicationPrompt(){
                 `Select e.id as id, e.first_name as first_name, e.last_name as last_name, r.title as Title, 
                 department.department_name as Department_name, r.salary as Salary, CONCAT(m.first_name, ' ' , m.last_name) as Manager
                 FROM employee e
-                LEFT JOIN employeerole r ON e.id = r.id
+                LEFT JOIN employeerole r ON e.role_id = r.id
                 LEFT JOIN employee m ON m.id = e.manager_id
                 LEFT JOIN department ON r.department = department.id
                 `
                 con.query(query, function (err,res){
                     if(err) throw err;
                     console.table(res);
+                    console.log("viewing all employees\n")
+                    applicationPrompt()
                 })
             }
             else if (applicationData.applicationChoices == "add a department"){
@@ -69,6 +72,7 @@ async function applicationPrompt(){
                     var query = `INSERT INTO department (department_name) VALUES ("${userInput.departmentName}");`
                     con.query(query, function (err,res){
                         if(err) throw err;
+                        applicationPrompt()
                     })
                 })
             }
@@ -87,13 +91,14 @@ async function applicationPrompt(){
                     {
                         type:"input",
                         name:"roleDepartment",
-                        message:"What department id is it?"
+                        message:"What department ID is it?"
                     },
                 ])
                 .then(async(userInput) =>{
                     var query = `INSERT INTO employeeRole (title, salary, department) VALUES ("${userInput.roleTitle}", ${userInput.roleSalary}, ${userInput.roleDepartment});`
                     con.query(query, function (err,res){
                         if(err) throw err;
+                        applicationPrompt()
                     })
                 })
             }
@@ -122,9 +127,10 @@ async function applicationPrompt(){
                 ])
                 .then(async(userInput) =>{
                     var query = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES ("${userInput.employee_firstName}", "${userInput.employee_lastName}", 
-                    ${userInput.employee_roleId}), ${userInput.employee_managerId});`
+                    ${userInput.employee_roleId}, ${userInput.employee_managerId})`
                     con.query(query, function (err,res){
                         if(err) throw err;
+                        applicationPrompt()
                     })
                 })
             }
@@ -164,9 +170,10 @@ async function applicationPrompt(){
                         con.query(data, function (err, res){
                             if (err) throw err;
                             var selectedData = res[0]["id"]
-                            var query = `UPDATE employee SET role_id = {${selectedData}}  WHERE first_name = ${userInput.employeeChoices.split(" ")[0]}`
+                            var query = `UPDATE employee SET role_id = ${selectedData} WHERE first_name = "${userInput.employeeChoices.split(" ")[0]}";`
                             con.query(query, function (err, res){
                                 if (err) throw err;
+                                applicationPrompt()
                             })
                         })
                     })
